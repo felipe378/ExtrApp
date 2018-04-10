@@ -14,7 +14,7 @@ library(data.table)
 
 #LOADING DATA
 
-source("//Mgrovef1/shared/Operations/EXTRUSIO/Felipe Correa Netto/Extrusion Application/Extra Files/Resin_Cleaning.R")
+source("./Resin_Cleaning.R")
 
 
 #### Loading the Files into the Global Environment ####
@@ -90,56 +90,39 @@ screw_data <- fread(paste(path, "Screw Properties.csv", sep = "/"),
 
 
 
-single_tari_temp_columns <- sort(colnames(single_tari_parameter_and_yield_data)[which(grepl("temp",
-                                                                                       colnames(single_tari_parameter_and_yield_data),
-                                                                                       ignore.case = TRUE))]
-                                 )
-single_tari_press_columns <- sort(colnames(single_tari_parameter_and_yield_data)[which(grepl("press",
-                                                                                       colnames(single_tari_parameter_and_yield_data),
-                                                                                       ignore.case = TRUE))]
-                                  )
-single_tari_speed_columns <- sort(colnames(single_tari_parameter_and_yield_data)[which(grepl("speed",
-                                                                                        colnames(single_tari_parameter_and_yield_data),
-                                                                                        ignore.case = TRUE))]
-                                  )
-single_tari_extra_columns <- sort(colnames(single_tari_parameter_and_yield_data)[which(!grepl(paste(c("temp", "press", "speed"), collapse = "|"),
-                                                                                             colnames(single_tari_parameter_and_yield_data),
-                                                                                             ignore.case = TRUE))]
-                                  )
+#' This will get the columns  that will be used to filter the MES data.
+#' The use will select which columns they want to display and analyze
+#' Because there are many columns, they will be split by categories
+single_tari_columns <- lapply(list("temp", "press", "speed"), #search for these names
+                              FUN = function(x){
+                                grep(x, colnames(single_tari_parameter_and_yield_data),
+                                     ignore.case = T, value = T)
+                              })
+names(single_tari_columns) <- c("temp", "press", "speed")
+#this will get everything else that did not match (note: invert = T)
+single_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
+                                  colnames(single_tari_parameter_and_yield_data),
+                                  ignore.case = T, value = T, invert = T)
 
-multi_tari_temp_columns <- sort(colnames(multi_tari_parameter_and_yield_data)[which(grepl("temp",
-                                                                                            colnames(multi_tari_parameter_and_yield_data),
-                                                                                            ignore.case = TRUE))]
-)
-multi_tari_press_columns <- sort(colnames(multi_tari_parameter_and_yield_data)[which(grepl("press",
-                                                                                             colnames(multi_tari_parameter_and_yield_data),
-                                                                                             ignore.case = TRUE))]
-)
-multi_tari_speed_columns <- sort(colnames(multi_tari_parameter_and_yield_data)[which(grepl("speed",
-                                                                                             colnames(multi_tari_parameter_and_yield_data),
-                                                                                             ignore.case = TRUE))]
-)
-multi_tari_extra_columns <- sort(colnames(multi_tari_parameter_and_yield_data)[which(!grepl(paste(c("temp", "press", "speed"), collapse = "|"),
-                                                                                              colnames(multi_tari_parameter_and_yield_data),
-                                                                                              ignore.case = TRUE))]
-)
+multi_tari_columns <- lapply(list("temp", "press", "speed"),
+                              FUN = function(x){
+                                grep(x, colnames(multi_tari_parameter_and_yield_data),
+                                     ignore.case = T, value = T)
+                              })
+names(multi_tari_columns) <- c("temp", "press", "speed")
+multi_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
+                                  colnames(multi_tari_parameter_and_yield_data),
+                                  ignore.case = T, value = T, invert = T)
 
-tapered_tari_temp_columns <- sort(colnames(tapered_tari_parameter_and_yield_data)[which(grepl("temp",
-                                                                                            colnames(tapered_tari_parameter_and_yield_data),
-                                                                                            ignore.case = TRUE))]
-)
-tapered_tari_press_columns <- sort(colnames(tapered_tari_parameter_and_yield_data)[which(grepl("press",
-                                                                                             colnames(tapered_tari_parameter_and_yield_data),
-                                                                                             ignore.case = TRUE))]
-)
-tapered_tari_speed_columns <- sort(colnames(tapered_tari_parameter_and_yield_data)[which(grepl("speed",
-                                                                                             colnames(tapered_tari_parameter_and_yield_data),
-                                                                                             ignore.case = TRUE))]
-)
-tapered_tari_extra_columns <- sort(colnames(tapered_tari_parameter_and_yield_data)[which(!grepl(paste(c("temp", "press", "speed"), collapse = "|"),
-                                                                                              colnames(tapered_tari_parameter_and_yield_data),
-                                                                                              ignore.case = TRUE))]
-)
+tapered_tari_columns <- lapply(list("temp", "press", "speed"),
+                              FUN = function(x){
+                                grep(x, colnames(single_tari_parameter_and_yield_data),
+                                     ignore.case = T, value = T)
+                              })
+names(tapered_tari_columns) <- c("temp", "press", "speed")
+tapered_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
+                                  colnames(tapered_tari_parameter_and_yield_data),
+                                  ignore.case = T, value = T, invert = T)
 
 
 
