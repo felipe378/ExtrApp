@@ -160,25 +160,14 @@ tapered_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse =
 
 
 
-#Catalog--Multi Extrusion PPS Table---Fill the Partnumber and PPS number for each single row in the table
-for (i in 1:nrow(multi_pps_data)){
-  if(multi_pps_data[i,"Part Number"]==""){
-    multi_pps_data[i,"Part Number"]=multi_pps_data[i-1,"Part Number"]
-  }
-  if(multi_pps_data[i,"PPS Number"]==""){
-    multi_pps_data[i,"PPS Number"]=multi_pps_data[i-1,"PPS Number"]
-  }
-}
-
-
-
-
-
 #### Adding the Resin Information ####
-
-single_pps_data <- addResinsToParts(single_pps_data, resin_data)
-multi_pps_data <- addResinsToParts(multi_pps_data, resin_data)
-tapered_pps_data <- addResinsToParts(tapered_pps_data, resin_data)
+#this will merge the resin data with the pps data by the issued resins
+resindt <- getResinDataTable(total_pps_data, resin_data)
+total_pps_data <- as.data.table(total_pps_data)
+total_pps_data[,colnames(resindt) := resindt]
+setcolorder(total_pps_data, c(colnames(total_pps_data)[1:3], 
+                              colnames(resindt),
+                              colnames(total_pps_data)[-(1:3)][colnames(total_pps_data)[-(1:3)] %out% colnames(resindt)]))
 
 
 #### Button vectors for PPS documents ####
@@ -186,23 +175,23 @@ tapered_pps_data <- addResinsToParts(tapered_pps_data, resin_data)
 partsandprints <- read.csv(paste(path, "Parts and Prints.csv", sep = "/"), header = TRUE, check.names = FALSE,
                            stringsAsFactors = FALSE)
 
-#getting the single buttons
+#getting the total buttons
 count <- 1
-single_print_button_vector <- c(rep(0,nrow(single_pps_data)))
-single_pps_button_vector <- c(rep(0,nrow(single_pps_data)))
-single_buttons_vector <- c(rep(0,nrow(single_pps_data)))
-while (count < nrow(single_pps_data) + 1){
-  #runs through the single PPS and creates a vector of html entries for action buttons for the
-  #single PPS data table.
-  single_buttons_vector[count] <- as.character(
-    actionButton(inputId = paste0("button_", single_pps_data[count,1]),
+total_print_button_vector <- c(rep(0,nrow(total_pps_data)))
+total_pps_button_vector <- c(rep(0,nrow(total_pps_data)))
+total_buttons_vector <- c(rep(0,nrow(total_pps_data)))
+while (count < nrow(total_pps_data) + 1){
+  #runs through the total PPS and creates a vector of html entries for action buttons for the
+  #total PPS data table.
+  total_buttons_vector[count] <- as.character(
+    actionButton(inputId = paste0("button_", total_pps_data[count,1]),
                  label = "Add Part",
-                 onclick = 'Shiny.onInputChange(\"singleadd_button\",  this.id)')
+                 onclick = 'Shiny.onInputChange(\"totaladd_button\",  this.id)')
   )
   
-  part <- single_pps_data[count,1]
+  part <- total_pps_data[count,1]
   print <- partsandprints$Print[which(partsandprints$Part == part)] #get the matching print for the part
-  pps <- single_pps_data$`PPS Number`[which(single_pps_data$`Part Number` == part)]
+  pps <- total_pps_data$`PPS Number`[which(total_pps_data$`Part Number` == part)]
   
   onclick_printstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
                                 print,
@@ -211,123 +200,23 @@ while (count < nrow(single_pps_data) + 1){
                               pps,
                               "\")")
   
-  single_print_button_vector[count] <- as.character(
+  total_print_button_vector[count] <- as.character(
     actionButton(inputId = paste0("print_button_", part),
                  label = part,
                  onclick = onclick_printstring)
   )
   
-  single_pps_button_vector[count] <- as.character(
+  total_pps_button_vector[count] <- as.character(
     actionButton(inputId = paste0("pps_button_", pps),
                  label = pps,
                  onclick = onclick_ppsstring)
   )
   
   count <- count + 1
-}#end single_pps_data buttons
+}#end total_pps_data buttons
 
 #this then adds the html to the table
-single_pps_data$"" <- single_buttons_vector
-single_pps_data <- single_pps_data[,c(ncol(single_pps_data), 1:(ncol(single_pps_data)-1))]
-single_pps_data$`Part Number` <- single_print_button_vector
-single_pps_data$`PPS Number` <- single_pps_button_vector
-
-
-
-
-#getting the multi-layer buttons
-count <- 1
-multi_print_button_vector <- c(rep(0,nrow(multi_pps_data)))
-multi_pps_button_vector <- c(rep(0,nrow(multi_pps_data)))
-multi_buttons_vector <- c(rep(0,nrow(multi_pps_data)))
-while (count < nrow(multi_pps_data) + 1){
-  #runs through the multi-layer PPS and creates a vector of html entries for action buttons for the
-  #multi-layer PPS data table.
-  multi_buttons_vector[count] <- as.character(
-    actionButton(inputId = paste0("button_", multi_pps_data[count,1]),
-                 label = "Add Part",
-                 onclick = 'Shiny.onInputChange(\"multiadd_button\",  this.id)')
-  )
-    
-    part <- multi_pps_data[count,1]
-    print <- partsandprints$Print[which(partsandprints$Part == part)] #get the matching print for the part
-    pps <- multi_pps_data$`PPS Number`[which(multi_pps_data$`Part Number` == part)]
-    
-    onclick_printstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-                                  print,
-                                  "\")")
-    onclick_ppsstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-                                pps,
-                                "\")")
-    
-    multi_print_button_vector[count] <- as.character(
-      actionButton(inputId = paste0("print_button_", part),
-                   label = part,
-                   onclick = onclick_printstring)
-    )
-    
-    multi_pps_button_vector[count] <- as.character(
-      actionButton(inputId = paste0("pps_button_", pps),
-                   label = pps,
-                   onclick = onclick_ppsstring)
-  )
-  
-  count <- count + 1
-}#end multi_pps_data buttons
-
-#this then adds the html to the table
-multi_pps_data$"" <- multi_buttons_vector
-multi_pps_data <- multi_pps_data[,c(ncol(multi_pps_data), 1:(ncol(multi_pps_data)-1))]
-multi_pps_data$`Part Number` <- multi_print_button_vector
-multi_pps_data$`PPS Number` <- multi_pps_button_vector
-
-#getting the tapered-layer buttons
-count <- 1
-tapered_buttons_vector <- c(rep(0,nrow(tapered_pps_data)))
-tapered_print_button_vector <- c(rep(0,nrow(tapered_pps_data)))
-tapered_pps_button_vector <- c(rep(0,nrow(tapered_pps_data)))
-while (count < nrow(tapered_pps_data) + 1){
-  #runs through the tapered-layer PPS and creates a vector of html entries for action buttons for the
-  #tapered-layer PPS data table.
-  tapered_buttons_vector[count] <- as.character(
-    actionButton(inputId = paste0("button_", tapered_pps_data[count,1]),
-                 label = "Add Part",
-                 onclick = 'Shiny.onInputChange(\"taperedadd_button\",  this.id)')
-  )
-  
-  part <- tapered_pps_data[count,1]
-  print <- partsandprints$Print[which(partsandprints$Part == part)] #get the matching print for the part
-  pps <- tapered_pps_data$`PPS Number`[which(tapered_pps_data$`Part Number` == part)]
-  
-  onclick_printstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-                           print,
-                           "\")")
-  onclick_ppsstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-                              pps,
-                              "\")")
-  
-  tapered_print_button_vector[count] <- as.character(
-    actionButton(inputId = paste0("print_button_", part),
-                 label = part,
-                 onclick = onclick_printstring)
-  )
-  
-  tapered_pps_button_vector[count] <- as.character(
-    actionButton(inputId = paste0("pps_button_", pps),
-                 label = pps,
-                 onclick = onclick_ppsstring)
-  )
-  
-  count <- count + 1
-}#end tapered_pps_data buttons
-
-#this then adds the html to the table
-tapered_pps_data$"" <- tapered_buttons_vector
-tapered_pps_data <- tapered_pps_data[,c(ncol(tapered_pps_data), 1:(ncol(tapered_pps_data)-1))]
-tapered_pps_data$`Part Number` <- tapered_print_button_vector
-tapered_pps_data$`PPS Number` <- tapered_pps_button_vector
-
-
-
-### Total PPS Data
-total_pps_data <- rbind.fill(single_pps_data[,2:ncol(single_pps_data)], multi_pps_data[,2:ncol(multi_pps_data)], tapered_pps_data[,2:ncol(tapered_pps_data)])
+total_pps_data$"" <- total_buttons_vector
+total_pps_data <- total_pps_data[,c(ncol(total_pps_data), 1:(ncol(total_pps_data)-1))]
+total_pps_data$`Part Number` <- total_print_button_vector
+total_pps_data$`PPS Number` <- total_pps_button_vector

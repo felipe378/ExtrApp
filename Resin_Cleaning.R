@@ -264,6 +264,41 @@ addResinsToParts <- function(pps, resin_data){
   return(new_pps)
 }
 
+getResinDataTable <- function(pps_data, resin_data){
+  #merges the resin data and the pps data based on the resin number issued to the extruded parts
+  #the data must be in data.table format
+  
+  #creates a list of issued resins. Each element in the list corresponds to a part number
+  #thus in each element there is a vector whose length is equal to the number of issued resins
+  #to that part
+  issued_resins <- strsplit(pps_data[["Resin.Number"]], "; ")
+  #names the list elements based on the part number
+  names(issued_resins) <- pps_data[["Part.Number"]]
+  
+  issued_resins_data <- lapply(issued_resins, FUN = function(x){
+    #goes through each part and gets the information relating to the issued resins
+    indices <- which(resin_data[["Resin.Number"]] %in% x)
+    
+    if (length(indices) != 0){
+      #if there was a match
+      #paste together the column elements (pasting rows together along a column)
+      resins <- as.data.table(lapply(resin_data[indices,], paste, collapse = "; "))
+    }
+    else{
+      resins <- resin_data[1,] #insert an empty data frames
+      resins[1,] <- NA
+    }
+    
+    return(resins)
+  })
+  
+  #returns by creating a data table of the list of data tables
+  return(rbindlist(issued_resins_data))
+  
+  
+  
+} #end AddResinsToParts2
+
 
 
 
