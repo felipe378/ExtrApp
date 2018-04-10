@@ -15,36 +15,41 @@ library(data.table)
 #LOADING DATA
 
 source("./Resin_Cleaning.R")
+source("./DataLoading_MiscFunctions.R")
 
 
 #### Loading the Files into the Global Environment ####
 
 #Creating variables across all sessions
 #getting path for the data files
-path <- "//Mgrovef1/shared/Operations/EXTRUSIO/Felipe Correa Netto/Extrusion Application/Data/UI Data"
+path <- "//Mgrovef1/shared/Operations/EXTRUSIO/Felipe Correa Netto/Extrusion Application/Data/UI Data/Dev"
 
 
 ### Loading the data
 
 
-single_pps_data <- fread(paste(path, "Single PPS Data_UI_30 August 2017.csv", sep = "/"), 
+single_pps_data <- fread(paste(path, "Single PPS Data_UI_30 August 2017 Dev.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""), 
-                         stringsAsFactors = FALSE)
-multi_pps_data <- fread(paste(path, "Multi-Layered PPS Data_UI_30 August 2017.csv", sep = "/"), 
+                         stringsAsFactors = FALSE,
+                         check.names = T)
+multi_pps_data <- fread(paste(path, "Multi-Layered PPS Data_UI_30 August 2017 Dev.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""), 
-                         stringsAsFactors = FALSE)
-tapered_pps_data <- fread(paste(path, "Tapered PPS Data_UI_30 August 2017.csv", sep = "/"), 
+                         stringsAsFactors = FALSE,
+                        check.names = T)
+tapered_pps_data <- fread(paste(path, "Tapered PPS Data_UI_30 August 2017 Dev.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""), 
-                         stringsAsFactors = FALSE)
+                         stringsAsFactors = FALSE,
+                         check.names = T)
 
 #Load Sampling Data
 all_sampling_data <- fread(paste(path, "All Sampling.csv", sep = "/"), 
                            header = TRUE, 
                            na.strings = c("NA", ""),
-                           stringsAsFactors = FALSE)
+                           stringsAsFactors = FALSE,
+                           check.names = T)
 
 
 # Load MES Data
@@ -53,40 +58,45 @@ single_tari_parameter_and_yield_data <- fread(paste(path,
                                                     sep = "/"), 
                                               header = TRUE, 
                                               na.strings = c("NA", ""),
-                                              stringsAsFactors = FALSE)
+                                              stringsAsFactors = FALSE,
+                                              check.names = T)
 
 multi_tari_parameter_and_yield_data <- fread(paste(path, 
                                                    "Multi Tari Parameters and Yield.csv", 
                                                    sep = "/"), 
                                              header = TRUE, 
                                              na.strings = c("NA", ""),
-                                             stringsAsFactors = FALSE)
-
+                                             stringsAsFactors = FALSE,
+                                             check.names = T)
 
 tapered_tari_parameter_and_yield_data <- fread(paste(path, 
                                                      "Tapered Tari Parameters and Yield.csv", 
                                                      sep = "/"), 
                                                header = TRUE, 
                                                na.strings = c("NA", ""),
-                                               stringsAsFactors = FALSE)
+                                               stringsAsFactors = FALSE,
+                                               check.names = T)
 
 #Load Scrap Code Data
 scrapcodes_data <- fread(paste(path, "Scrap Codes.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""),
-                         stringsAsFactors = FALSE)
+                         stringsAsFactors = FALSE,
+                         check.names = T)
 
 #Load Resin Data
 resin_data <- fread(paste(path, "Total Resin Information.csv", sep = "/"), 
                     header = TRUE, 
                     na.strings = c("NA", ""),
-                    stringsAsFactors = FALSE)
+                    stringsAsFactors = FALSE,
+                    check.names = T)
 
 #Load Screw Data
 screw_data <- fread(paste(path, "Screw Properties.csv", sep = "/"), 
                     header = TRUE, 
                     na.strings = c("NA", ""),
-                    stringsAsFactors = FALSE)
+                    stringsAsFactors = FALSE,
+                    check.names = T)
 
 
 
