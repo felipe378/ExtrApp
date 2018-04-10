@@ -1,5 +1,3 @@
-#This R code is used to load csv or xls file into R. And clean the raw data based on demand.
-#And we need to add more code to update our database daily
 library(shiny)
 library(bootstrap)
 library(jpeg)
@@ -19,141 +17,77 @@ library(data.table)
 source("//Mgrovef1/shared/Operations/EXTRUSIO/Felipe Correa Netto/Extrusion Application/Extra Files/Resin_Cleaning.R")
 
 
-
+#### Loading the Files into the Global Environment ####
 
 #Creating variables across all sessions
+#getting path for the data files
 path <- "//Mgrovef1/shared/Operations/EXTRUSIO/Felipe Correa Netto/Extrusion Application/Data/UI Data"
-single_pps_file <- "Single PPS Data_UI_30 August 2017.csv"
-multi_pps_file <- "Multi-Layered PPS Data_UI_30 August 2017.csv"
-tapered_pps_file <- "Tapered PPS Data_UI_30 August 2017.csv"
-
-single_sampling_file <- "Single Sampling.csv"
-multi_sampling_file <- "Multi Sampling.csv"
-tapered_sampling_file <- "Tapered Sampling.csv"
-extra_sampling_file <- "Extra Sampling.csv"
-all_sampling_file <- "All Sampling.csv"
-
-single_parameterandyield_file <- "Single Tari Parameters and Yield.csv"
-single_parameter_file <- "Single Tari Parameters.csv"
-single_time_file <- "Single Tari Time.csv"
-single_submitter_file <- "Single Tari Submitter.csv"
-single_total_file <- "Single Tari Total.csv"
-
-multi_parameterandyield_file <- "Multi Tari Parameters and Yield.csv"
-multi_parameter_file <- "Multi Tari Parameters.csv"
-multi_time_file <- "Multi Tari Time.csv"
-multi_submitter_file <- "Multi Tari Submitter.csv"
-multi_total_file <- "Multi Tari Total.csv"
-
-tapered_parameterandyield_file <- "Tapered Tari Parameters and Yield.csv"
-tapered_parameter_file <- "Tapered Tari Parameters.csv"
-tapered_time_file <- "Tapered Tari Time.csv"
-tapered_submitter_file <- "Tapered Tari Submitter.csv"
-tapered_total_file <- "Tapered Tari Total.csv"
 
 
-scrapcode_file <- "Scrap Codes.csv"
-
-resin_file <- "Total Resin Information.csv"
-screw_file <- "Screw Properties.csv"
-
-single_pps_pathfile <- paste(path, single_pps_file, sep = "/")
-multi_pps_pathfile <- paste(path, multi_pps_file, sep = "/")
-tapered_pps_pathfile <- paste(path, tapered_pps_file, sep = "/")
-
-single_sampling_pathfile <- paste(path, single_sampling_file, sep = "/")
-multi_sampling_pathfile <- paste(path, multi_sampling_file, sep = "/")
-tapered_sampling_pathfile <- paste(path, tapered_sampling_file, sep = "/")
-extra_sampling_pathfile <- paste(path, extra_sampling_file, sep = "/")
-all_sampling_pathfile <- paste(path, all_sampling_file, sep = "/")
-
-single_parameterandyield_filepath <- paste(path, single_parameterandyield_file, sep = "/")
-single_parameter_filepath <- paste(path, single_parameter_file, sep = "/")
-single_time_filepath <- paste(path, single_time_file, sep = "/")
-single_submitter_filepath <- paste(path, single_submitter_file, sep = "/")
-single_total_filepath <- paste(path, single_total_file, sep = "/")
-
-multi_parameterandyield_filepath <- paste(path, multi_parameterandyield_file, sep = "/")
-multi_parameter_filepath <- paste(path, multi_parameter_file, sep = "/")
-multi_time_filepath <- paste(path, multi_time_file, sep = "/")
-multi_submitter_filepath <- paste(path, multi_submitter_file, sep = "/")
-multi_total_filepath <- paste(path, multi_total_file, sep = "/")
-
-tapered_parameterandyield_filepath <- paste(path, tapered_parameterandyield_file, sep = "/")
-tapered_parameter_filepath <- paste(path, tapered_parameter_file, sep = "/")
-tapered_time_filepath <- paste(path, tapered_time_file, sep = "/")
-tapered_submitter_filepath <- paste(path, tapered_submitter_file, sep = "/")
-tapered_total_filepath <- paste(path, tapered_total_file, sep = "/")
-
-scrapcode_filepath <- paste(path, scrapcode_file, sep = "/")
-
-resin_pathfile <- paste(path, resin_file, sep = "/")
-screw_pathfile <- paste(path, screw_file, sep = "/")
+### Loading the data
 
 
-###
-
-
-single_pps_data <- fread(single_pps_pathfile, 
+single_pps_data <- fread(paste(path, "Single PPS Data_UI_30 August 2017.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""), 
                          stringsAsFactors = FALSE)
-multi_pps_data <- fread(multi_pps_pathfile, 
+multi_pps_data <- fread(paste(path, "Multi-Layered PPS Data_UI_30 August 2017.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""), 
                          stringsAsFactors = FALSE)
-tapered_pps_data <- fread(tapered_pps_pathfile, 
+tapered_pps_data <- fread(paste(path, "Tapered PPS Data_UI_30 August 2017.csv", sep = "/"), 
                          header = TRUE, 
                          na.strings = c("NA", ""), 
                          stringsAsFactors = FALSE)
 
-single_sampling_data <- read.csv(single_sampling_pathfile, header = TRUE, stringsAsFactors = FALSE,
-                                 check.names = FALSE)
-multi_sampling_data <- read.csv(multi_sampling_pathfile, header = TRUE, stringsAsFactors = FALSE,
-                                 check.names = FALSE)
-tapered_sampling_data <- read.csv(tapered_sampling_pathfile, header = TRUE, stringsAsFactors = FALSE,
-                                 check.names = FALSE)
-extra_sampling_data <- read.csv(extra_sampling_pathfile, header = TRUE, stringsAsFactors = FALSE,
-                                 check.names = FALSE)
-all_sampling_data <- read.csv(all_sampling_pathfile, header = TRUE, stringsAsFactors = FALSE,
-                                 check.names = FALSE)
-
-multi_sampling_data[is.na(multi_sampling_data)] <- ""
-tapered_sampling_data[is.na(tapered_sampling_data)] <- ""
+#Load Sampling Data
+all_sampling_data <- fread(paste(path, "All Sampling.csv", sep = "/"), 
+                           header = TRUE, 
+                           na.strings = c("NA", ""),
+                           stringsAsFactors = FALSE)
 
 
-single_tari_parameter_and_yield_data <- read.csv(single_parameterandyield_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                                 check.names = FALSE)
-single_tari_parameter_data <- read.csv(single_parameter_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
-single_tari_time_data <- read.csv(single_time_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
-single_tari_submitter_data <- read.csv(single_submitter_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
-single_tari_total_data <- read.csv(single_total_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
+# Load MES Data
+single_tari_parameter_and_yield_data <- fread(paste(path, 
+                                                    "Single Tari Parameters and Yield.csv", 
+                                                    sep = "/"), 
+                                              header = TRUE, 
+                                              na.strings = c("NA", ""),
+                                              stringsAsFactors = FALSE)
 
-multi_tari_parameter_and_yield_data <- read.csv(multi_parameterandyield_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                                 check.names = FALSE)
-multi_tari_parameter_data <- read.csv(multi_parameter_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                       check.names = FALSE)
-multi_tari_time_data <- read.csv(multi_time_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                  check.names = FALSE)
-multi_tari_submitter_data <- read.csv(multi_submitter_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                       check.names = FALSE)
-multi_tari_total_data <- read.csv(multi_total_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                   check.names = FALSE)
+multi_tari_parameter_and_yield_data <- fread(paste(path, 
+                                                   "Multi Tari Parameters and Yield.csv", 
+                                                   sep = "/"), 
+                                             header = TRUE, 
+                                             na.strings = c("NA", ""),
+                                             stringsAsFactors = FALSE)
 
-tapered_tari_parameter_and_yield_data <- read.csv(tapered_parameterandyield_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                                 check.names = FALSE)
-tapered_tari_parameter_data <- read.csv(tapered_parameter_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                      check.names = FALSE)
-tapered_tari_time_data <- read.csv(tapered_time_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                 check.names = FALSE)
-tapered_tari_submitter_data <- read.csv(tapered_submitter_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                      check.names = FALSE)
-tapered_tari_total_data <- read.csv(tapered_total_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                                  check.names = FALSE)
+
+tapered_tari_parameter_and_yield_data <- fread(paste(path, 
+                                                     "Tapered Tari Parameters and Yield.csv", 
+                                                     sep = "/"), 
+                                               header = TRUE, 
+                                               na.strings = c("NA", ""),
+                                               stringsAsFactors = FALSE)
+
+#Load Scrap Code Data
+scrapcodes_data <- fread(paste(path, "Scrap Codes.csv", sep = "/"), 
+                         header = TRUE, 
+                         na.strings = c("NA", ""),
+                         stringsAsFactors = FALSE)
+
+#Load Resin Data
+resin_data <- fread(paste(path, "Total Resin Information.csv", sep = "/"), 
+                    header = TRUE, 
+                    na.strings = c("NA", ""),
+                    stringsAsFactors = FALSE)
+
+#Load Screw Data
+screw_data <- fread(paste(path, "Screw Properties.csv", sep = "/"), 
+                    header = TRUE, 
+                    na.strings = c("NA", ""),
+                    stringsAsFactors = FALSE)
+
 
 
 single_tari_temp_columns <- sort(colnames(single_tari_parameter_and_yield_data)[which(grepl("temp",
@@ -207,14 +141,6 @@ tapered_tari_extra_columns <- sort(colnames(tapered_tari_parameter_and_yield_dat
                                                                                               ignore.case = TRUE))]
 )
 
-
-scrapcodes_data <- read.csv(scrapcode_filepath, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
-
-resin_data <- read.csv(resin_pathfile, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
-screw_data <- read.csv(screw_pathfile, header = TRUE, stringsAsFactors = FALSE, 
-                       check.names = FALSE)
 
 
 ###
