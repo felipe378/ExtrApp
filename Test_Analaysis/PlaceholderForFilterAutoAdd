@@ -1,0 +1,175 @@
+listoffiltershtml <- reactiveValues(
+    #this will store the list of filters html 
+    data = tagList(), #tagList for the filters to be used (stored as html of the box)
+    filternumbers = c(), #stores the filters numbers for the ids (1,2,3,4,5) or (1,2,3,6,7,8,12)
+    filtersadded = 0, #stores the numbers of filters that have been added
+    filtersdeleted = 0, #stores the numbers of filters that have been deleted
+    count = 0 #stores the count
+  )
+  
+  
+  
+  
+  genereateFilter <- function(count){
+    #generates the box to add a filter
+    #takes the count to add to the 
+    
+    switch_condition_input <- paste0("input.operatorfilter_", count)
+    
+    print(paste0("outerbox_", count))
+    
+    columnfilter_name <- paste0("columnfilter_", count)
+    
+    
+    htmltorender <- div(id = paste0("outerbox_", count),
+                        #a division to hold the box so it can be easily deleted
+                        box(title = p(actionButton(paste0("deletefilter_", count),
+                                                   label = "",
+                                                   icon = icon("times"),
+                                                   onclick = 'Shiny.onInputChange(\"deletefilter\",  this.id)'), 
+                                      "        A Filter"), #this is the title of the box with an x to delete
+                            solidHeader = TRUE, status = "info", collapsible = TRUE, width = 12,
+                            
+                            selectInput(inputId = paste0("columnfilter_", count),
+                                        label = "Select a Column to Filter On",
+                                        choices = colnames(tapered_tari_parameter_and_yield_data),
+                                        selected = NULL),
+                            selectInput(inputId = paste0("operatorfilter_", count),
+                                        label = "Select an Operator",
+                                        choices = list("None" = 0, #placeholder
+                                                       "Inequality" = 1, #inequality
+                                                       "Range" = 2, #range
+                                                       "Matching Values" = 3) #matching values
+                            ),
+                            
+                            conditionalPanel(
+                              condition = paste0("input.operatorfilter_", count, " == '1'"),
+                              fluidRow(
+                                column(width = 6,
+                                       selectInput(inputId = paste0("inequalitysymbol_", count),
+                                                   label = "Select an Operator",
+                                                   choices = list("None" = 0, #placeholder
+                                                                  "X  <" = 1, #less than sign
+                                                                  "x  <=" = 2, #less than or equal to sign
+                                                                  "X  >=" = 3, #greater than or equal to sign
+                                                                  "X  >" = 4) #greater than sign
+                                       )
+                                ),
+                                column(width = 6,
+                                       textInput(inputId = paste0("inequalityvalue_", count), #what the user inputs for the inequality
+                                                 label = "",
+                                                 value = "")
+                                )
+                              )#end fluidRow
+                              
+                             ), #end condition panel
+                            conditionalPanel(
+                              condition = paste0("input.operatorfilter_", count, " == '2'"),
+                              fluidRow(
+                                column(width = 6,
+                                       textInput(inputId = paste0("lowerrangevalue_", count), #what the user inputs for the lower value of the range
+                                                 label = "",
+                                                 value = "")
+                                ),
+                                column(width = 6,
+                                       selectInput(inputId = paste0("lowerrangesymbol_", count),
+                                                   label = "Select an Operator",
+                                                   choices = list("<  X" = 1, #less than sign
+                                                                  "<=  X" = 2), #less than or equal to sign
+                                                   selected = "1")
+                                )
+                              ), #end fluidRow
+                              fluidRow(
+                                column(width = 6,
+                                       selectInput(inputId = paste0("upperrangesymbol_", count),
+                                                   label = "Select an Operator",
+                                                   choices = list("X  >=" = 3, #greater than or equal to sign
+                                                                  "X  >" = 4), #greater than sign
+                                                   selected = "2")
+                                ),
+                                column(width = 6,
+                                       textInput(inputId = paste0("upperrangevalue_", count), #what the user inputs for the upper
+                                                 label = "",
+                                                 value = "")
+                                )
+                              ), #end fluidRow
+                              fluidRow(
+                                column(width = 12,
+                                       radioButtons(inputId = paste0("includeorexclude_", count),
+                                                    label = "Include or Exclude the Data within the Range?",
+                                                    choiceNames = c("Include", "Exclude"),
+                                                    choiceValues = c(0,1),
+                                                    selected = "0")
+                                )
+
+                              )#end fluid Row
+                            ),
+                            conditionalPanel(
+                              condition = paste0("input.operatorfilter_", count, " == '3'"),
+                              fluidRow(
+                                column(width = 12,
+                                       radioButtons(inputId = paste0("includeorexclude_", count),
+                                                    label = "Include or Exclude Matching Data",
+                                                    choiceNames = c("Include", "Exclude"),
+                                                    choiceValues = c(0,1),
+                                                    selected = "0")
+                                ),
+                                column(width = 12,
+                                       selectizeInput(inputId = paste0("matchingfilter_", count),
+                                                      label = "Choose the Values",
+                                                      choices = unique(tapered_tari_parameter_and_yield_data[, 1]),
+                                                      #gets the unique values for the column
+                                                      selected = unique(tapered_tari_parameter_and_yield_data[, 1],),
+                                                      multiple = TRUE
+                                       ) #end selectInput
+                                )#end column
+                              )#end fluidRow
+                            )#end conditionalPanel
+                            
+                            )#end box
+                        )#end div
+      
+    
+    return(htmltorender)
+    
+  }
+  
+  observeEvent(input$addfilter,{
+    previousfiltercount <- listoffiltershtml$count #get how many filters there currently are
+    
+    currentfiltercount <- previousfiltercount + 1
+    
+    html_list <- genereateFilter(currentfiltercount)
+
+    listoffiltershtml$data[[currentfiltercount]] <- html_list
+    listoffiltershtml$filternumbers <- c(listoffiltershtml$filternumbers, (currentfiltercount))
+    listoffiltershtml$filtersadded <- listoffiltershtml$filtersadded + 1
+    
+    insertUI(selector = "div:has(> #wellPanelforfilter)",
+             where = "afterEnd",
+             ui = html_list)
+    
+    listoffiltershtml$count <- listoffiltershtml$count + 1
+
+    
+    
+    print("It Worked")
+    print(html_list)
+    
+  }) #end observeEvent for addfilter
+  
+  observeEvent(input$deletefilter,{
+    #will delete the filter that was selected
+    
+    actionbuttonvalue <- input$deletefilter
+    count_value <- strsplit(actionbuttonvalue, "_")[[1]][2]
+    
+    removeUI(
+      selector = paste0("div:has(> #outerbox_", count_value, ")")
+    )
+    
+    listoffiltershtml$filtersdeleted <- listoffiltershtml$filtersdeleted + 1
+    listoffiltershtml$filternumbers[count_value] <- NA #replace the value with NA
+    listoffiltershtml$tagList[count_value] <- NA
+    
+  }) #end observeEvent for addfilter

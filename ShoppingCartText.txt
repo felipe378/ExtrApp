@@ -1,0 +1,7 @@
+The shopping cart contains all the parts in which the user has selected to add the part. There are four views for the shopping cart: single-layer extrusion, multi-layer extrusion, tapered-extrusion, and total extrusion. Total extrusion represents all the extrusions combined into one view.
+
+Each view has two tables. The first table lists all the parts for that view and if each part has SAP batches associated to it. The second table lists all the parts with SAP batches and the corresponding batches for the parts.
+
+From the shopping cart, parts and batches can be deleted to remove it from the shopping cart. The user can use this function if the user does not wish to see the MES and SAP data for that batch or part.
+
+Only parts that are in the shopping cart will appear in the MES tabs, Scrap information tabs, and the Analysis tabs.

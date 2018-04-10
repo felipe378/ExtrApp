@@ -1,0 +1,5 @@
+The MES Batch data is split into three main tabs (single-layer, multi-layer, and tapered) with each main tab having five sub tabs. Each sub tab contains unique information except for MES total which is a concatenation of MES Parameters, MES Timestamps, and MES Submitters.
+
+For the Analysis Tab the only information that will be analyzed is that which has been selected in the “MES Parameters and Yield” tab.  The MES Parameters and Yield allows a user to see all the batch information found in the shopping cart for the specific type of extrusion. There are four boxes above the table which contain all the parameters that can be displayed for a batch. If a parameter is empty for a batch, that is because the batch does not have that associated parameter, it is only present because a batch or batches in the data contains that parameter.
+
+The columns in the table can be reordered by clicking a column and dragging it to the desired position.

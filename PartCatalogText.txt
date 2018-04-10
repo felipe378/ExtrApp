@@ -1,0 +1,11 @@
+The part catalog is split into three different tabs: one for single-layer extrusions, one for multi-layer extrusions, and one for tapered extrusions. In each tab, a user can search any of the components by over 55 different parameters. These parameters range from Windchill document numbers, tooling information, resin information, processing specifications, dimensional specifications, and special operations. 
+
+The table with the components is rendered dynamically, which means that once a parameter is changed the table will update immediately to reflect the components that meet that parameter. The only information displayed in the table is the parameters the user has selected with the checkbox. A user does not need to search by a parameter but simply have it clicked to see the information in the table. If a parameter has a range input, the low and high input will display the minimum and maximum value for that parameter, respectively.
+
+The table can be sorted by any of the parameters that are visible. If the table is sorted and then downloaded, the download will not be sorted but be displayed in the original unsorted order.
+
+If a user clicks a part number in the table, a new tab will open that will display the latest revision of the print in Windchill. If a user clicks a Process Parameter Sheet (PPS) number in the table, a new tab will open that will display the latest revision of the PPS document. If a user clicks “Add Part”, that part number will be added to the shopping cart of the user. Information regarding the shopping cart can be found in the next box.
+
+Furthermore, a user can download all the part information currently displayed in the table by clicking the button underneath the table labelled “Download Single PPS Data”. If the user wishes to download all the parts currently displayed in the table but with all the parameters, the user should click “Download Single PPS Data with All Parameters”. There is also a button to reset all the parameter inputs.
+
+Note, there are no intermittent layer (gradient) extrusions or multi-lumen extrusions cataloged. Lastly, the one component that is both tapered and multi-layered can be found in the multi-layer extrusion tab.

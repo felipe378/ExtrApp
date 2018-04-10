@@ -1,0 +1,1 @@
+The “Scrap Rates and Codes” tab displays all the scrap codes for an SAP batch in tabular form. It will list the codes, the contribution to scrap VOP for the batch, and what percentage of scrap that specific scrap code comprises for the batch.
