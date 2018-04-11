@@ -141,7 +141,8 @@ setcolorder(total_pps_data, c(colnames(total_pps_data)[1:3],
 
 #### DATA CLEANING For all Data Tables ####
 #obtain values for the filters
-
+total_pps_data[,Part.Number.Search := Part.Number]
+total_pps_data[,PPS.Number.Search := PPS.Number]
 
 
 
@@ -159,27 +160,44 @@ partsandprints <- fread(paste(path, "Parts and Prints.csv", sep = "/"),
 #getting the total buttons
 #adding the shopping cart add button
 total_pps_data[,Shopping.Cart := lapply(Part.Number, FUN = function(x){
-  actionButton(inputId = paste0("button_", x),
+  as.character(actionButton(inputId = paste0("button_", x),
                label = "Add Part",
-               onclick = 'Shiny.onInputChange(\"totaladd_button\", this.id)')
+               onclick = 'Shiny.onInputChange(\"totaladd_button\", this.id)'))
 })]
 #rearrange to be the first column
 setcolorder(total_pps_data, c("Shopping.Cart", colnames(total_pps_data)[-ncol(total_pps_data)]))
 
 
-##These two functions are for the server
-# total_pps_data[,Part.Number := lapply(Part.Number.Search, FUN = function(x){
-#   actionButton(inputId = paste0("print_button_", x),
-#                label = x,
-#                onclick = paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-#                                 x, 
-#                                 "\")"))
-# })]
-# 
-# total_pps_data[,PPS.Number := lapply(PPS.Number.Search, FUN = function(x){
-#   actionButton(inputId = paste0("print_button_", x),
-#                label = x,
-#                onclick = paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-#                                 x, 
-#                                 "\")"))
-# })]
+#These two functions are for the server
+total_pps_data[,Part.Number := lapply(Part.Number.Search, FUN = function(x){
+  as.character(actionButton(inputId = paste0("print_button_", x),
+               label = x,
+               onclick = paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
+                                partsandprints[Part == x, Print], #get the print from the key
+                                "\")")))
+})]
+
+total_pps_data[,PPS.Number := lapply(PPS.Number.Search, FUN = function(x){
+  as.character(actionButton(inputId = paste0("print_button_", x),
+               label = x,
+               onclick = paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
+                                x,
+                                "\")")))
+})]
+
+
+#### Read the FilterKey ####
+filterkey <- fread(paste(path, "FilterKey Dev.csv", sep = "/"), 
+                   header = TRUE, 
+                   na.strings = c("NA", ""), 
+                   stringsAsFactors = FALSE,
+                   check.names = T)
+
+
+
+#### Removing Unneeded Things ####
+rm(single_pps_data, multi_pps_data, tapered_pps_data)
+rm(single_tari_parameter_and_yield_data, multi_tari_parameter_and_yield_data,
+   tapered_tari_parameter_and_yield_data)
+# rm(path)
+# rm(resindt, partsandprints)
