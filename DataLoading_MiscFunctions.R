@@ -27,3 +27,6 @@ filterOptions <- function(filter, data){
   return(filter)
   
 }
+
+
+'%out%' <- Negate(`%in%`)

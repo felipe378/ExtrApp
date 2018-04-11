@@ -120,43 +120,11 @@ total_tari_columns <- lapply(list("temp", "press", "speed"), #search for these n
                                 grep(x, colnames(total_tari_parameter_and_yield_data),
                                      ignore.case = T, value = T)
                               })
-names(single_tari_columns) <- c("temp", "press", "speed")
+names(total_tari_columns) <- c("temp", "press", "speed")
 #this will get everything else that did not match (note: invert = T)
-single_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
-                                  colnames(single_tari_parameter_and_yield_data),
+total_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
+                                  colnames(total_tari_parameter_and_yield_data),
                                   ignore.case = T, value = T, invert = T)
-
-multi_tari_columns <- lapply(list("temp", "press", "speed"),
-                              FUN = function(x){
-                                grep(x, colnames(multi_tari_parameter_and_yield_data),
-                                     ignore.case = T, value = T)
-                              })
-names(multi_tari_columns) <- c("temp", "press", "speed")
-multi_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
-                                  colnames(multi_tari_parameter_and_yield_data),
-                                  ignore.case = T, value = T, invert = T)
-
-tapered_tari_columns <- lapply(list("temp", "press", "speed"),
-                              FUN = function(x){
-                                grep(x, colnames(single_tari_parameter_and_yield_data),
-                                     ignore.case = T, value = T)
-                              })
-names(tapered_tari_columns) <- c("temp", "press", "speed")
-tapered_tari_columns$extra <- grep(paste(c("temp", "press", "speed"), collapse = "|"),
-                                  colnames(tapered_tari_parameter_and_yield_data),
-                                  ignore.case = T, value = T, invert = T)
-
-
-
-###
-
-
-
-
-##### DATA CLEANING For all Data Tables ####
-
-
-#obtain values for the filters
 
 
 
@@ -170,53 +138,48 @@ setcolorder(total_pps_data, c(colnames(total_pps_data)[1:3],
                               colnames(total_pps_data)[-(1:3)][colnames(total_pps_data)[-(1:3)] %out% colnames(resindt)]))
 
 
+
+#### DATA CLEANING For all Data Tables ####
+#obtain values for the filters
+
+
+
+
 #### Button vectors for PPS documents ####
 
-partsandprints <- read.csv(paste(path, "Parts and Prints.csv", sep = "/"), header = TRUE, check.names = FALSE,
-                           stringsAsFactors = FALSE)
+#imports the key that relates a part number to a print
+partsandprints <- fread(paste(path, "Parts and Prints.csv", sep = "/"), 
+                        header = TRUE, 
+                        check.names = T,
+                        na.strings = c("NA", ""),
+                        stringsAsFactors = FALSE)
+
+
 
 #getting the total buttons
-count <- 1
-total_print_button_vector <- c(rep(0,nrow(total_pps_data)))
-total_pps_button_vector <- c(rep(0,nrow(total_pps_data)))
-total_buttons_vector <- c(rep(0,nrow(total_pps_data)))
-while (count < nrow(total_pps_data) + 1){
-  #runs through the total PPS and creates a vector of html entries for action buttons for the
-  #total PPS data table.
-  total_buttons_vector[count] <- as.character(
-    actionButton(inputId = paste0("button_", total_pps_data[count,1]),
-                 label = "Add Part",
-                 onclick = 'Shiny.onInputChange(\"totaladd_button\",  this.id)')
-  )
-  
-  part <- total_pps_data[count,1]
-  print <- partsandprints$Print[which(partsandprints$Part == part)] #get the matching print for the part
-  pps <- total_pps_data$`PPS Number`[which(total_pps_data$`Part Number` == part)]
-  
-  onclick_printstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-                                print,
-                                "\")")
-  onclick_ppsstring <- paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
-                              pps,
-                              "\")")
-  
-  total_print_button_vector[count] <- as.character(
-    actionButton(inputId = paste0("print_button_", part),
-                 label = part,
-                 onclick = onclick_printstring)
-  )
-  
-  total_pps_button_vector[count] <- as.character(
-    actionButton(inputId = paste0("pps_button_", pps),
-                 label = pps,
-                 onclick = onclick_ppsstring)
-  )
-  
-  count <- count + 1
-}#end total_pps_data buttons
+#adding the shopping cart add button
+total_pps_data[,Shopping.Cart := lapply(Part.Number, FUN = function(x){
+  actionButton(inputId = paste0("button_", x),
+               label = "Add Part",
+               onclick = 'Shiny.onInputChange(\"totaladd_button\", this.id)')
+})]
+#rearrange to be the first column
+setcolorder(total_pps_data, c("Shopping.Cart", colnames(total_pps_data)[-ncol(total_pps_data)]))
 
-#this then adds the html to the table
-total_pps_data$"" <- total_buttons_vector
-total_pps_data <- total_pps_data[,c(ncol(total_pps_data), 1:(ncol(total_pps_data)-1))]
-total_pps_data$`Part Number` <- total_print_button_vector
-total_pps_data$`PPS Number` <- total_pps_button_vector
+
+##These two functions are for the server
+# total_pps_data[,Part.Number := lapply(Part.Number.Search, FUN = function(x){
+#   actionButton(inputId = paste0("print_button_", x),
+#                label = x,
+#                onclick = paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
+#                                 x, 
+#                                 "\")"))
+# })]
+# 
+# total_pps_data[,PPS.Number := lapply(PPS.Number.Search, FUN = function(x){
+#   actionButton(inputId = paste0("print_button_", x),
+#                label = x,
+#                onclick = paste0("window.open(\"https://plm.bsci.bossci.com:1443/Windchill/netmarkets/jsp/bsci/plm/viewable/LatestEffectiveReleased.jsp?number=%11",
+#                                 x, 
+#                                 "\")"))
+# })]
