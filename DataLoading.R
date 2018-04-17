@@ -193,6 +193,11 @@ filterkey <- fread(paste(path, "FilterKey Dev.csv", sep = "/"),
                    stringsAsFactors = FALSE,
                    check.names = T)
 
+filterkey_list <- lapply(split(filterkey, seq(nrow(filterkey))), as.list)
+names(filterkey_list) <- filterkey[["Filter"]]
+
+filter_options <- lapply(filterkey_list, filterOptions)
+
 
 
 #### Removing Unneeded Things ####
